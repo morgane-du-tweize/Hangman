@@ -3,19 +3,18 @@ from random import randrange
 from fonctions import *
 import os
 
-
 totalScores = loading_scores()
 
 # " IMPLEMENTONS LE FAIT QUE TANT QUE C'EST LA MEME PARTIE ON NE DEMANDE PAS A CHAQUE FOIS LE NOM"
 
 # implementer le fait qu'il ne doit jamais pondre le même mot 2 fois dans une même partie
-continuerPartie = True
+gameOn = True
 gameOver = False
-longeurTotaleMots = len(listeMots)
+totalNumberOfWords = len(listeMots)
 
 print("Bienvenue au jeu du pendu ! !")
 
-while continuerPartie :
+while gameOn :
     nbChances = nombreChances
 
     playerName = "#"
@@ -28,7 +27,7 @@ while continuerPartie :
         totalScores[playerName] = 0
         scorePlayer = 0
 
-    randomNumber = randrange(longeurTotaleMots)
+    randomNumber = randrange(totalNumberOfWords)
     wordToGuess = listeMots[randomNumber]
 
     lenghtOfWord = len(wordToGuess)
@@ -58,11 +57,11 @@ while continuerPartie :
         if nbChances <= 0 :
             gameOver = True
         if gameOver :
-            continuerPartie = False
+            continue = False
 
         displayedWord  = "".join(motListeletters)
 
-        afficheScoreMotCurrent(displayedWord, nbChances, playedLetters)
+        displayingWordScore(displayedWord, nbChances, playedLetters)
 
     if not gameOver :
         print("Félicitations ! tu as trouvé le mot magique : {}".format(wordToGuess))
@@ -72,7 +71,7 @@ while continuerPartie :
         print("Ton score actuel : {}".format(scorePlayer))
         continuer = input("Est-ce que tu veux arreter ? (o/n)")
         if continuer =="o" or continuer == "O" :
-            continuerPartie = False
+            gameOn = False
 
 if gameOver :
     print("C'est trop dommage ! Tu as perdu")
