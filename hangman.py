@@ -1,84 +1,83 @@
 from donnees import *
 from random import randrange
-
-def entrerLettre():
-
-    lettre = ""
-    while len(lettre) != 1 or not lettre.isalpha() :
-        try :
-            print("donne une lettre :")
-            lettre=input()
-        except TypeError :
-            print("une lettre")
-        except ValueError :
-            print("donne une lettre")
-    return lettre
-
-def remplaceLettre (motListeLettres,motADeviner, lettre) :
-
-    for idLettre in range(len (motADeviner)) :
-        if motADeviner[idLettre] == lettre.lower() :
-            if motListeLettres[idLettre] == "*" :
-                motListeLettres[idLettre] = lettre.lower()
+from fonctions import *
+import os
 
 
+totalScores = loading_scores()
+
+# " IMPLEMENTONS LE FAIT QUE TANT QUE C'EST LA MEME PARTIE ON NE DEMANDE PAS A CHAQUE FOIS LE NOM"
+
+# implementer le fait qu'il ne doit jamais pondre le même mot 2 fois dans une même partie
 continuerPartie = True
-perdu = False
+gameOver = False
 longeurTotaleMots = len(listeMots)
 
-scoreJoueur = 0
-print("Bienvenue au jeu du pendu, pour aller de l'ava... euh PARCE QUE C'EST NOTRE PROJEEEEEEEEET ! ! !")
+print("Bienvenue au jeu du pendu ! !")
 
 while continuerPartie :
-    print("Et c'est parti pour un nouveau mot a deviner !")
-    nbChances = 8
-    nombreHasard = randrange(longeurTotaleMots)
-    motADeviner = listeMots[nombreHasard]
+    nbChances = nombreChances
 
-    longueurUnMot = len(motADeviner)
-    motEtoiles = ["*"] * longueurUnMot
-    
-    motAffiche = "".join(motEtoiles)
+    playerName = "#"
+    while not playerName.isalnum() :
+        playerName = input("Comment tu t'appelles ? \n")
 
-    lettresDejaJouees = []
+    if playerName in totalScores :
+        scorePlayer = totalScores[playerName]
+    else :
+        totalScores[playerName] = 0
+        scorePlayer = 0
 
-    while motADeviner != motAffiche and not perdu :
-        
-        motListeLettres = []
-        for uneLettre in motAffiche :
-            motListeLettres.append(uneLettre)
+    randomNumber = randrange(longeurTotaleMots)
+    wordToGuess = listeMots[randomNumber]
 
-        lettre = entrerLettre()
+    lenghtOfWord = len(wordToGuess)
+    hiddenWord = ["*"] * lenghtOfWord
+    hiddenWord[0] = wordToGuess[0]
+    hiddenWord[lenghtOfWord-1] = wordToGuess[lenghtOfWord-1]
+    displayedWord = "".join(hiddenWord)
 
-        if lettre in motADeviner :
-            remplaceLettre (motListeLettres,motADeviner, lettre)
+    playedLetters = []
+    print("Et c'est parti pour un nouveau mot a deviner ! \n  {}".format(displayedWord))
+
+    while wordToGuess != displayedWord and not gameOver :
+
+        motListeletters = []
+        for oneLetter in displayedWord :
+            motListeletters.append(oneLetter)
+
+        letter = entrerLettre()
+
+        if letter in wordToGuess :
+            replaceLetter (motListeletters,wordToGuess, letter)
 
         else :
             nbChances -=1
-        lettresDejaJouees.append(lettre)
+        playedLetters.append(letter)
   
         if nbChances <= 0 :
+            gameOver = True
+        if gameOver :
             continuerPartie = False
-            perdu = True
-        
-        motAffiche  = "".join(motListeLettres)
 
-        print("ton mot : {}".format(motAffiche))
-        print("nombre de chances : {}".format(nbChances))
-        print("lettres deja jouees :")
-        for dejajoue in range(len(lettresDejaJouees)) :
-            print(lettresDejaJouees[dejajoue], end=" ")
-        print()
+        displayedWord  = "".join(motListeletters)
 
-    if not perdu :
-        print("Félicitations ! tu as trouvé le mot magique : {}".format(motADeviner))
-        scoreJoueur += nbChances
+        afficheScoreMotCurrent(displayedWord, nbChances, playedLetters)
+
+    if not gameOver :
+        print("Félicitations ! tu as trouvé le mot magique : {}".format(wordToGuess))
+        scorePlayer += nbChances
+        totalScores[playerName] =scorePlayer
+
+        print("Ton score actuel : {}".format(scorePlayer))
         continuer = input("Est-ce que tu veux arreter ? (o/n)")
-
         if continuer =="o" or continuer == "O" :
             continuerPartie = False
 
-if perdu :
+if gameOver :
     print("C'est trop dommage ! Tu as perdu")
-print("ton score est de {} points !".format(scoreJoueur))
-print("Au revoir et à bientôt !")
+    print_scores(totalScores)
+
+recording_scores(totalScores)
+
+print_scores(totalScores)
